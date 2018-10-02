@@ -71,4 +71,17 @@ ggplot(gapminder, aes(continent, gdpPercap, fill=continent)) +
 ```
 
 # Task 3
-## Compute a trimmed mean of life expectancy for different years. Or a weighted mean, weighting by population. Just try something other than the plain vanilla mean.
+## Compute a trimmed mean of life expectancy for different years. Or a weighted mean, weighting by population.
+
+```{r}
+trimmed_mean <- gapminder %>% group_by(year) %>% summarize("Untrimmed Mean LifeExp" = mean(lifeExp), "Trimmed (=0.125) Mean LifEexp" = mean(lifeExp,trim = 0.125)) %>% arrange(year)
+
+trimmed_mean
+```
+
+trimming by 12.5% would discard the minimum and maximum value in the sample
+
+```{r}
+
+```
+
