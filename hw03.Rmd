@@ -18,8 +18,8 @@ suppressPackageStartupMessages(library(gapminder))
 ```
 Now let's analyze some data.
 
-#Task 1
-##Get the maximum and minimum of GDP per capita for all continents.
+# Task 1
+## Get the maximum and minimum of GDP per capita for all continents.
 
 First lets assign the minimum and maximum GDP per capita, grouped by continents, to variable `GDPcont`.
 
