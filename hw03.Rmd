@@ -31,4 +31,44 @@ GDPcont <- gapminder %>%
 knitr::kable(GDPcont)
 ```
 
+Now let's create some plots. For the first plot we will look at the minimum GDP per capita for each continent.
 
+```{r}
+ggplot(GDPcont, aes(continent, min)) + 
+  geom_bar(stat = "identity", color = "red", fill = "red") + 
+  scale_y_log10() +
+  ggtitle("Minimum GDP per Capita for Each Continent") + 
+  ylab("Minimum GDP per Capita") +
+  xlab("Continent")
+```
+
+We can do the same for the maximum GDP per capita values for each continent
+
+```{r}
+ggplot(GDPcont, aes(continent, max)) + 
+  geom_bar(stat = "identity", color = "green", fill = "green") + 
+  ggtitle("Maximum GDP per Capita for Each Continent") + 
+  ylab("Maximum GDP per Capita") +
+  xlab("Continent")
+```
+
+
+
+QUESTION: HOW TO PLOT THEM TOGETHER
+
+# Task 2
+## Look at the spread of GDP per capita within the continents.
+
+```{r}
+ggplot(gapminder, aes(continent, gdpPercap, fill=continent)) + 
+  scale_y_log10() +
+  geom_violin() +
+  geom_boxplot() +
+  geom_jitter(alpha=0.1) +
+  labs(title="Violin Plot of GDP per Capita for Each Continent") +
+  ylab("GDP per Capita") +
+  xlab("Continent")
+```
+
+# Task 3
+## Compute a trimmed mean of life expectancy for different years. Or a weighted mean, weighting by population. Just try something other than the plain vanilla mean.
