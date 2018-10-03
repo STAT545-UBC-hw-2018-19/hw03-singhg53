@@ -73,15 +73,52 @@ ggplot(gapminder, aes(continent, gdpPercap, fill=continent)) +
 # Task 3
 ## Compute a trimmed mean of life expectancy for different years. Or a weighted mean, weighting by population.
 
+
 ```{r}
-trimmed_mean <- gapminder %>% group_by(year) %>% summarize("Untrimmed Mean LifeExp" = mean(lifeExp), "Trimmed (=0.125) Mean LifEexp" = mean(lifeExp,trim = 0.125)) %>% arrange(year)
+trimmed_mean <- gapminder %>% group_by(year) %>% summarize("Untrimmed Mean LifeExp" = mean(lifeExp), TrimmedMeanLifExp = mean(lifeExp,trim = 0.125)) %>% arrange(year)
 
 trimmed_mean
 ```
 
+
 trimming by 12.5% would discard the minimum and maximum value in the sample
 
 ```{r}
-
+ggplot(trimmed_mean, aes(year, TrimmedMeanLifExp)) +
+  geom_point(colour = "blue") +
+  geom_smooth(colour = "light blue")
 ```
 
+weighted mean, weighting by population
+
+```{r}
+weightedmean_lifeExp <- gapminder %>% group_by(year) %>% summarize("Mean" = mean(lifeExp), weightedmean = weighted.mean(lifeExp, pop))
+
+weightedmean_lifeExp
+```
+
+Combining everything
+
+```{r}
+combineddata <- gapminder %>% group_by(year) %>% summarize( Mean = mean(lifeExp), weightedmean = weighted.mean(lifeExp, pop), TrimmedMeanLifExp = mean(lifeExp,trim = 0.125))
+
+combineddata
+```
+
+
+
+
+```{r}
+combineddata %>% 
+  ggplot(aes(year)) +
+  geom_line(aes(y = weightedmean, colour = "Weighted Mean")) +
+  geom_line(aes(y = TrimmedMeanLifExp, colour = "Trimmed Mean LifExp")) +
+  geom_line(aes(y = Mean, colour = "Mean")) +
+  ylab("Life Expectancy") +
+  xlab("Year") +
+  ggtitle("Mean LifeExp, Trimmed Mean LifeExp, and Weighted Mean LifeExp vs. Year")
+```
+
+# Task 4
+
+## How is life expectancy changing over time on different continents?
