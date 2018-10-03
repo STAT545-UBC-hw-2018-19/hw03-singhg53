@@ -75,7 +75,7 @@ ggplot(gapminder, aes(continent, gdpPercap, fill=continent)) +
 # Task 3
 #### Compute a trimmed mean of life expectancy for different years. Or a weighted mean, weighting by population.
 
-For this task we need to use the `trim` function. `trim` is essentially used to trim the data to a certain specificed value. For example if we set the trim to 0.16, it will cut off 16% of the data from the bootom and top of the data. Interestingly, this would mean that it would represent one standard if the trim is set to 0.16.
+For this task we need to use the `trim` function. `trim` is essentially used to trim the data to a certain specificed value. For example if we set the trim to 0.16, **it will cut off 16% of the data from the bottom and top of the data**. Interestingly, this would mean that the data would represent the mean of one standard deviation if the trim is set to 0.16.
 
 Below we created a new dataset called `trimmed_mean`. The data was piped from `gapminder`, grouped by the year, and summarized into two other variables Untrimmed Mean LifeExp (regular mean for each continent) and TrimmedMeanLifExp.
 
@@ -93,7 +93,7 @@ ggplot(trimmed_mean, aes(year, TrimmedMeanLifExp)) +
   geom_smooth(colour = "light blue")
 ```
 
-Another intersting function we could use is `weighted.mean()`. Weighted mean is a kind of average, however, some variables can contribute more weight to specific numbers. In this example we use the weighted mean of lifeExp and population together.
+Another intersting function we could use is `weighted.mean()`. Weighted mean **is a kind of average, however, some variables can contribute more weight to specific numbers.** In this example we use the weighted mean of lifeExp and population together.
 
 ```{r}
 weightedmean_lifeExp <- gapminder %>% group_by(year) %>% summarize("Mean" = mean(lifeExp), weightedmean = weighted.mean(lifeExp, pop))
@@ -101,7 +101,7 @@ weightedmean_lifeExp <- gapminder %>% group_by(year) %>% summarize("Mean" = mean
 weightedmean_lifeExp
 ```
 
-The trimmed mean graph wasn't that useful because we weren't able to combine different data. Below we combine the mean, trimmed mean lifeExp (where trim = 0.16), and the weighted average together.
+The trimmed mean graph above wasn't that useful because we weren't able to combine different data. Below we will take an extra step to combine the mean, trimmed mean lifeExp (where trim = 0.16), and the weighted average together.
 
 ```{r}
 combineddata <- gapminder %>% group_by(year) %>% summarize( Mean = mean(lifeExp), weightedmean = weighted.mean(lifeExp, pop), TrimmedMeanLifExp = mean(lifeExp,trim = 0.16))
@@ -122,11 +122,22 @@ combineddata %>%
   ggtitle("Mean LifeExp, Trimmed Mean LifeExp, and Weighted Mean LifeExp vs. Year")
 ```
 
-It is interesting to note that the weighted lifeExp goes down from both the trimmed mean and the normal mean of the data. This indicates that the weighted average of the population went down as a function of the lifeExp.
+It is interesting to note that the weighted lifeExp goes down from both the trimmed mean and the normal mean of the data from 1960-1965. This indicates that the weighted average of the population went down as a function of the lifeExp.
 
 # Task 4
 
 #### How is life expectancy changing over time on different continents?
+
+We can look at the lifeExp over time below by grouping both the continent and year. The mean is the lifeExp for all the different countries for that year.
+
+```{r}
+lifeExp_overtime<- gapminder %>% group_by(continent, year) %>% summarize("Mean" = mean(lifeExp))
+
+lifeExp_overtime
+```
+
+
+The plot below gives us great information on the general trend of where the data is going. For example, by using the plot below we could visually tell which continent has the highest lifeExp (Oceania). Moreover, we could tell that life expectancy in Africa starts to plateau between the year 1980-1990.
 
 ```{r}
   ggplot(gapminder, aes(x = year, y = lifeExp, colour = continent)) +
@@ -139,12 +150,15 @@ It is interesting to note that the weighted lifeExp goes down from both the trim
 
 # Task 5
 
+Let's take on an additional task for fun. In this task we will be combining more data together but unlike what we did before we will be grouping it by different continents. First lets set `combineddata2`. In this dataset we will use mean of lifeExp, weighted mean, trimmed mean, and let's introduce a new variable for the first time the, `median` function.
+
 ```{r}
-combineddata2 <- gapminder %>% group_by(continent) %>% summarize(Mean = mean(lifeExp), weightedmean = weighted.mean(lifeExp, pop), TrimmedMeanLifExp = mean(lifeExp,trim = 0.125), medianlifeExp= median(lifeExp))
+combineddata2 <- gapminder %>% group_by(continent) %>% summarize(Mean = mean(lifeExp), weightedmean = weighted.mean(lifeExp, pop), TrimmedMeanLifExp = mean(lifeExp,trim = 0.16), medianlifeExp= median(lifeExp))
 
 combineddata2
 ```
 
+We will now go ahead and plot these different values onto a graph.
 
 ```{r}
 ggplot(combineddata2, aes(continent)) +
@@ -156,3 +170,12 @@ ggplot(combineddata2, aes(continent)) +
   xlab("Year") +
   ggtitle("Weighted Mean, Trimmed Mean, Mean, and Median Life Expectancy")
 ```
+
+The information above can tell us a lot. We could look at the average lifeExp over the years this data is collected and we can tell that Oceania has consistently ranked at the top. We can also tell the spread of the data for Asia is quite prominent since both the mean and median are quite seperated.
+
+
+
+
+
+
+# Thank-you for visiting my page!
