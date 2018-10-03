@@ -19,30 +19,33 @@ suppressPackageStartupMessages(library(gapminder))
 Now let's analyze some data.
 
 # Task 1
-## Get the maximum and minimum of GDP per capita for all continents.
+#### For our first task we will: **Get the maximum and minimum of GDP per capita for all continents.**
 
 First lets assign the minimum and maximum GDP per capita, grouped by continents, to variable `GDPcont`.
+For ease of understanding I will be defining some functions as we go along. The `group_by()` is **used to take an existing tbl and converts it into a grouped tbl where operations are performed.**
 
 ```{r}
 GDPcont <- gapminder %>%
-  group_by(continent) %>%
-  summarize(min = min(gdpPercap), max = max(gdpPercap))
+  group_by(continent) %>% #organized by continent
+  summarize(min = min(gdpPercap), max = max(gdpPercap)) #defining the min and max for gdpPercap
 
 knitr::kable(GDPcont)
 ```
 
-Now let's create some plots. For the first plot we will look at the minimum GDP per capita for each continent.
+The `knitr::kable` function is useful to make our tables more asethetically pleasing.
+
+Now let's create some plots using the `ggplot2` data visualization tool. For the first plot we will look at the minimum GDP per capita for each continent.
 
 ```{r}
 ggplot(GDPcont, aes(continent, min)) + 
   geom_bar(stat = "identity", color = "red", fill = "red") + 
-  scale_y_log10() +
-  ggtitle("Minimum GDP per Capita for Each Continent") + 
-  ylab("Minimum GDP per Capita") +
-  xlab("Continent")
+  scale_y_log10() + #this applies a log scale on the y-axis
+  ggtitle("Minimum GDP per Capita for Each Continent") + #this adds a title to the graph
+  ylab("Minimum GDP per Capita") + #this labels the y-axis
+  xlab("Continent") #this labels the x-axis
 ```
 
-We can do the same for the maximum GDP per capita values for each continent
+We can do the same for the maximum GDP per capita values for each continent:
 
 ```{r}
 ggplot(GDPcont, aes(continent, max)) + 
@@ -53,11 +56,10 @@ ggplot(GDPcont, aes(continent, max)) +
 ```
 
 
-
-QUESTION: HOW TO PLOT THEM TOGETHER
-
 # Task 2
-## Look at the spread of GDP per capita within the continents.
+#### Look at the spread of GDP per capita within the continents.
+
+Violin plots are great to visualize the spread of the data. Below we have used continent as the x-variable, whereas we used gdpPercap, as the y-variable. The alpha value is specificed to 0.1 and can tell us visually the density of each point. 
 
 ```{r}
 ggplot(gapminder, aes(continent, gdpPercap, fill=continent)) + 
@@ -71,17 +73,19 @@ ggplot(gapminder, aes(continent, gdpPercap, fill=continent)) +
 ```
 
 # Task 3
-## Compute a trimmed mean of life expectancy for different years. Or a weighted mean, weighting by population.
+#### Compute a trimmed mean of life expectancy for different years. Or a weighted mean, weighting by population.
 
+For this task we need to use the `trim` function. `trim` is essentially used to trim the data to a certain specificed value. For example if we set the trim to 0.16, it will cut off 16% of the data from the bootom and top of the data. Interestingly, this would mean that it would represent one standard if the trim is set to 0.16.
+
+Below we created a new dataset called `trimmed_mean`. The data was piped from `gapminder`, grouped by the year, and summarized into two other variables Untrimmed Mean LifeExp (regular mean for each continent) and TrimmedMeanLifExp.
 
 ```{r}
-trimmed_mean <- gapminder %>% group_by(year) %>% summarize("Untrimmed Mean LifeExp" = mean(lifeExp), TrimmedMeanLifExp = mean(lifeExp,trim = 0.125)) %>% arrange(year)
+trimmed_mean <- gapminder %>% group_by(year) %>% summarize("Untrimmed Mean LifeExp" = mean(lifeExp), TrimmedMeanLifExp = mean(lifeExp,trim = 0.16)) %>% arrange(year)
 
 trimmed_mean
 ```
 
-
-trimming by 12.5% would discard the minimum and maximum value in the sample
+We will now go ahead and plot the trimmed mean lifeExp for each year.
 
 ```{r}
 ggplot(trimmed_mean, aes(year, TrimmedMeanLifExp)) +
@@ -89,7 +93,7 @@ ggplot(trimmed_mean, aes(year, TrimmedMeanLifExp)) +
   geom_smooth(colour = "light blue")
 ```
 
-weighted mean, weighting by population
+Another intersting function we could use is `weighted.mean()`. Weighted mean is a kind of average, however, some variables can contribute more weight to specific numbers. In this example we use the weighted mean of lifeExp and population together.
 
 ```{r}
 weightedmean_lifeExp <- gapminder %>% group_by(year) %>% summarize("Mean" = mean(lifeExp), weightedmean = weighted.mean(lifeExp, pop))
@@ -97,16 +101,15 @@ weightedmean_lifeExp <- gapminder %>% group_by(year) %>% summarize("Mean" = mean
 weightedmean_lifeExp
 ```
 
-Combining everything
+The trimmed mean graph wasn't that useful because we weren't able to combine different data. Below we combine the mean, trimmed mean lifeExp (where trim = 0.16), and the weighted average together.
 
 ```{r}
-combineddata <- gapminder %>% group_by(year) %>% summarize( Mean = mean(lifeExp), weightedmean = weighted.mean(lifeExp, pop), TrimmedMeanLifExp = mean(lifeExp,trim = 0.125))
+combineddata <- gapminder %>% group_by(year) %>% summarize( Mean = mean(lifeExp), weightedmean = weighted.mean(lifeExp, pop), TrimmedMeanLifExp = mean(lifeExp,trim = 0.16))
 
 combineddata
 ```
 
-
-
+Now since we have our dataset, `combineddata`, we could go ahead and plot it below.
 
 ```{r}
 combineddata %>% 
@@ -119,6 +122,37 @@ combineddata %>%
   ggtitle("Mean LifeExp, Trimmed Mean LifeExp, and Weighted Mean LifeExp vs. Year")
 ```
 
+It is interesting to note that the weighted lifeExp goes down from both the trimmed mean and the normal mean of the data. This indicates that the weighted average of the population went down as a function of the lifeExp.
+
 # Task 4
 
-## How is life expectancy changing over time on different continents?
+#### How is life expectancy changing over time on different continents?
+
+```{r}
+  ggplot(gapminder, aes(x = year, y = lifeExp, colour = continent)) +
+  geom_point(alpha=0.3) +
+  geom_smooth() +
+  ylab("Life Expectancy") +
+  xlab("Year") +
+  ggtitle("Life Expectancy Changing Over Time on Different Continents")
+```
+
+# Task 5
+
+```{r}
+combineddata2 <- gapminder %>% group_by(continent) %>% summarize(Mean = mean(lifeExp), weightedmean = weighted.mean(lifeExp, pop), TrimmedMeanLifExp = mean(lifeExp,trim = 0.125), medianlifeExp= median(lifeExp))
+
+combineddata2
+```
+
+
+```{r}
+ggplot(combineddata2, aes(continent)) +
+  geom_jitter(aes(y = weightedmean, colour = "Weighted Mean")) +
+  geom_jitter(aes(y = TrimmedMeanLifExp, colour = "Trimmed Mean LifExp")) +
+  geom_jitter(aes(y = Mean, colour = "Mean")) +
+  geom_jitter(aes(y = medianlifeExp, colour = "Median LifeExp")) +
+  ylab("Life Expectancy") +
+  xlab("Year") +
+  ggtitle("Weighted Mean, Trimmed Mean, Mean, and Median Life Expectancy")
+```
